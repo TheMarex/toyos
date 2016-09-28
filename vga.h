@@ -34,10 +34,10 @@ struct terminal_t {
 };
 
 struct cursor_t
-cursor_increment(const struct cursor_t cursor, uint8_t number_of_rows, uint8_t number_of_columns);
+cursor_increment(struct terminal_t* terminal, const struct cursor_t cursor);
 
 struct cursor_t
-cursor_newline(const struct cursor_t cursor, uint8_t number_of_rows);
+cursor_newline(struct terminal_t* terminal, const struct cursor_t cursor);
 
 struct cursor_t
 terminal_insert(struct terminal_t* terminal, const struct cursor_t cursor, const char c);
@@ -47,7 +47,10 @@ terminal_clear(struct terminal_t* terminal);
 
 struct cursor_t
 terminal_print(struct terminal_t* terminal, const struct cursor_t cursor,
-               const char* text, const size_t text_length);
+               const char* text, const size_t text_length=0);
+
+void
+terminal_scroll_down(struct terminal_t* terminal);
 
 struct terminal_t
 terminal_new(const uint8_t number_of_columns, const uint8_t number_of_rows, uint16_t* buffer);

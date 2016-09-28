@@ -13,5 +13,6 @@ void kernel_main()
     struct cursor_t cursor = {.row = 0, .column = 0};
 
     cursor = terminal_print(&terminal, cursor, "Hello, World!\n", 14);
+    cursor = terminal_print(&terminal, cursor, "Foo!\nBar\n", 9);
 #endif
 }
