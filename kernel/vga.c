@@ -69,20 +69,35 @@ terminal_clear(struct terminal_t* terminal) {
     return null_cursor;
 }
 
-// prints an ASCII string text of length text_length
-// if text_length is zero it is assumed that the string is zero terminated
+// prints an ASCII encoded buffer of length buffer_length
 // returns the new cursor position after the string has been written
 struct cursor_t
-terminal_print(struct terminal_t* terminal, const struct cursor_t cursor,
-               const char* text, size_t text_length=0) {
-    if (text_length == 0) {
-        while(text[text_length] != '\0') text_length++;
+terminal_print_buffer(struct terminal_t* terminal, const struct cursor_t cursor,
+                      const char* buffer, size_t buffer_length) {
+    if (buffer_length == 0) {
+        while(buffer[buffer_length] != '\0') buffer_length++;
     }
 
     struct cursor_t current_cursor = cursor;
-    for (const char* text_end = text + text_length; text != text_end; ++text) {
-        current_cursor = terminal_insert(terminal, current_cursor, *text);
+    for (const char* buffer_end = buffer + buffer_length; buffer != buffer_end; ++buffer) {
+        current_cursor = terminal_insert(terminal, current_cursor, *buffer);
     }
+
+    return current_cursor;
+}
+
+
+// prints an ASCII string text that is zero terminated
+// returns the new cursor position after the string has been written
+struct cursor_t
+terminal_print_string(struct terminal_t* terminal, const struct cursor_t cursor,
+                      const char* text) {
+    struct cursor_t current_cursor = cursor;
+
+    while (*text != '\0') {
+        current_cursor = terminal_insert(terminal, current_cursor, *(text++));
+    }
+
     return current_cursor;
 }
 

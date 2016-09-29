@@ -46,8 +46,12 @@ struct cursor_t
 terminal_clear(struct terminal_t* terminal);
 
 struct cursor_t
-terminal_print(struct terminal_t* terminal, const struct cursor_t cursor,
-               const char* text, const size_t text_length=0);
+terminal_print_buffer(struct terminal_t* terminal, const struct cursor_t cursor,
+                      const char* buffer, const size_t buffer_length);
+
+struct cursor_t
+terminal_print_string(struct terminal_t* terminal, const struct cursor_t cursor,
+                      const char* string);
 
 void
 terminal_scroll_down(struct terminal_t* terminal);

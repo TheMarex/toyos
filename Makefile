@@ -4,14 +4,17 @@ AS=i686-elf-as
 CXX=i686-elf-g++
 CFLAGS=-std=c99 -ffreestanding -O2 -Wall -Wextra -nostdlib
 TEST_CFLAGS=$(CFLAGS) -DENABLE_TESTS -g
-BUILD_DIR=build
+ARCH=i386
+BUILD_DIR=build/$(ARCH)
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
 CRTEND_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtend.o)
 
 # Standart traget: build multiboot enabled kernel binary
 #
 
-all: $(BUILD_DIR)/kernel.bin
+all: i386
+
+i386: $(BUILD_DIR)/kernel.bin
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -19,17 +22,14 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.o: %.c $(BUILD_DIR)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-$(BUILD_DIR)/bootstrap.o: bootstrap.s $(BUILD_DIR)
-	$(AS) bootstrap.s -o $(BUILD_DIR)/bootstrap.o
+$(BUILD_DIR)/%.o: kernel/%.c $(BUILD_DIR)
+	$(CC) -c $< -o $@ $(CFLAGS)
 
-$(BUILD_DIR)/crti.o: crti.s $(BUILD_DIR)
-	$(AS) crti.s -o $(BUILD_DIR)/crti.o
+$(BUILD_DIR)/%.o: arch/i386/%.s $(BUILD_DIR)
+	$(AS) $< -o $@
 
-$(BUILD_DIR)/crtn.o: crtn.s $(BUILD_DIR)
-	$(AS) crtn.s -o $(BUILD_DIR)/crtn.o
-
-$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
-	$(CC) -T kernel.ld -o $(BUILD_DIR)/kernel.bin $(CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/kernel.o $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
+$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
+	$(CC) -T arch/i386/kernel.ld -o $(BUILD_DIR)/kernel.bin $(CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/kernel.o $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
 
 # Tests
 #
@@ -40,12 +40,12 @@ $(BUILD_DIR)/tests:
 $(BUILD_DIR)/tests/%.o: tests/%.c $(BUILD_DIR)/tests
 	$(CC) -c $< -o $@ $(TEST_CFLAGS)
 
-$(BUILD_DIR)/tests/kernel.o: kernel.c $(BUILD_DIR)/tests
+$(BUILD_DIR)/tests/kernel.o: kernel/kernel.c $(BUILD_DIR)/tests
 	$(CC) -c $< -o $@ $(TEST_CFLAGS)
 
 # every test gets an own kernel image to ensure consistent state
-$(BUILD_DIR)/tests/kernel_%.bin: $(BUILD_DIR)/tests/%.o $(BUILD_DIR)/tests/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
-	$(CC) -T kernel.ld -o $@ $(TEST_CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/tests/kernel.o $< $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
+$(BUILD_DIR)/tests/kernel_%.bin: $(BUILD_DIR)/tests/%.o $(BUILD_DIR)/tests/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
+	$(CC) -T arch/i386/kernel.ld -o $@ $(TEST_CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/tests/kernel.o $< $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
 
 # Convinience
 #
@@ -62,4 +62,4 @@ clean:
 	rm $(BUILD_DIR)/tests/*.bin
 	rm $(BUILD_DIR)/tests/*.o
 
-.PHONY: qemu tests clean
+.PHONY: qemu tests clean i386

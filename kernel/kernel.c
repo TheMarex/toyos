@@ -12,7 +12,7 @@ void kernel_main()
     struct terminal_t terminal = terminal_new(80, 25, (uint16_t*) 0xB8000);
     struct cursor_t cursor = {.row = 0, .column = 0};
 
-    cursor = terminal_print(&terminal, cursor, "Hello, World!\n", 14);
-    cursor = terminal_print(&terminal, cursor, "Foo!\nBar\n", 9);
+    cursor = terminal_print_string(&terminal, cursor, "Hello, World!\n");
+    cursor = terminal_print_string(&terminal, cursor, "Foo!\nBar\n");
 #endif
 }
