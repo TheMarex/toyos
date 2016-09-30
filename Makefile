@@ -2,8 +2,9 @@ CC=i686-elf-gcc
 QEMU=qemu-system-i386
 AS=i686-elf-as
 CXX=i686-elf-g++
-CFLAGS=-std=c99 -ffreestanding -O2 -Wall -Wextra -nostdlib
-TEST_CFLAGS=$(CFLAGS) -DENABLE_TESTS -g
+CFLAGS=-std=c99 -ffreestanding -Og -ggdb3 -Wall -Wextra -nostdlib
+SFLAGS=-g
+TEST_CFLAGS=$(CFLAGS) -DENABLE_TESTS
 ARCH=i386
 BUILD_DIR=build/$(ARCH)
 CRTBEGIN_OBJ:=$(shell $(CC) $(CFLAGS) -print-file-name=crtbegin.o)
@@ -26,7 +27,7 @@ $(BUILD_DIR)/%.o: kernel/%.c $(BUILD_DIR)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(BUILD_DIR)/%.o: arch/i386/%.s $(BUILD_DIR)
-	$(AS) $< -o $@
+	$(AS) $< $(SFLAGS) -o $@
 
 $(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
 	$(CC) -T arch/i386/kernel.ld -o $(BUILD_DIR)/kernel.bin $(CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/kernel.o $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc

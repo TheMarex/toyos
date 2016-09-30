@@ -2,28 +2,30 @@ ENTRY(_start)
 
 SECTIONS
 {
-    /* 1MiB offset */
-    . = 1M;
+    /* 3GB + 1MiB offset */
+    . = 0xC0000000 + 1M;
+    _kernel_start = .;
     /* make sure the multiboot section comes first */
-    .text BLOCK(4K) : ALIGN(4K)
+    .text ALIGN(4K) : AT(ADDR(.text) - 0xC0000000)
     {
         *(.multiboot)
         *(.text)
     }
 
-    .rodata BLOCK(4K) : ALIGN(4K)
+    .rodata ALIGN(4K) : AT(ADDR(.rodata) - 0xC0000000)
     {
         *(.rodata)
     }
 
-    .data BLOCK(4K) : ALIGN(4K)
+    .data ALIGN(4K) : AT(ADDR(.data) - 0xC0000000)
     {
         *(.data)
     }
 
-    .bss BLOCK(4K) : ALIGN(4K)
+    .bss ALIGN(4K) : AT(ADDR(.bss) - 0xC0000000)
     {
         *(COMMON)
         *(.bss)
     }
+    _kernel_end = .;
 }
