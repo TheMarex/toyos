@@ -72,7 +72,7 @@ make tests
 ## Goals
 
 - [x] Simple VGA output
-- [ ] Virtual memory
+- [x] Virtual memory
 - [ ] Task management
 
 ## Open questions
