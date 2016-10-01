@@ -79,7 +79,11 @@ pd_st:  movl %esi, (%edi)
 paged:
         # remove the identity mapping from the first page directory entry
         movl $0, kernel_page_directory
+
+        # setup stack
         mov $stack_top, %esp
+
+        # call into C land
         call kernel_main
 
         cli
@@ -97,7 +101,6 @@ kernel_page_directory:
 kernel_page_table:
         # 4 bytes per entry
         .skip KERNEL_TABLES_SIZE
-        #.skip NUM_KERNEL_PAGE_TABLES*NUM_PAGE_TABLE_ENTRIES*4
 
 # This section setups the kernel stack
 stack_bottom:

@@ -29,8 +29,8 @@ $(BUILD_DIR)/%.o: kernel/%.c $(BUILD_DIR)
 $(BUILD_DIR)/%.o: arch/i386/%.s $(BUILD_DIR)
 	$(AS) $< $(SFLAGS) -o $@
 
-$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
-	$(CC) -T arch/i386/kernel.ld -o $(BUILD_DIR)/kernel.bin $(CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/kernel.o $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
+$(BUILD_DIR)/kernel.bin: $(BUILD_DIR)/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/gdt.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
+	$(CC) -T arch/i386/kernel.ld -o $(BUILD_DIR)/kernel.bin $(CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/gdt.o $(BUILD_DIR)/kernel.o $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
 
 # Tests
 #
@@ -45,8 +45,8 @@ $(BUILD_DIR)/tests/kernel.o: kernel/kernel.c $(BUILD_DIR)/tests
 	$(CC) -c $< -o $@ $(TEST_CFLAGS)
 
 # every test gets an own kernel image to ensure consistent state
-$(BUILD_DIR)/tests/kernel_%.bin: $(BUILD_DIR)/tests/%.o $(BUILD_DIR)/tests/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
-	$(CC) -T arch/i386/kernel.ld -o $@ $(TEST_CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/tests/kernel.o $< $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
+$(BUILD_DIR)/tests/kernel_%.bin: $(BUILD_DIR)/tests/%.o $(BUILD_DIR)/tests/kernel.o $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/gdt.o arch/i386/kernel.ld $(BUILD_DIR)/crti.o $(BUILD_DIR)/crtn.o
+	$(CC) -T arch/i386/kernel.ld -o $@ $(TEST_CFLAGS) $(BUILD_DIR)/crti.o $(CRTBEGIN) $(BUILD_DIR)/bootstrap.o $(BUILD_DIR)/vga.o $(BUILD_DIR)/gdt.o $(BUILD_DIR)/tests/kernel.o $< $(CRTEND) $(BUILD_DIR)/crtn.o -lgcc
 
 # Convinience
 #
@@ -54,8 +54,13 @@ $(BUILD_DIR)/tests/kernel_%.bin: $(BUILD_DIR)/tests/%.o $(BUILD_DIR)/tests/kerne
 qemu: $(BUILD_DIR)/kernel.bin
 	$(QEMU) -kernel $(BUILD_DIR)/kernel.bin
 
-tests: $(BUILD_DIR)/tests/kernel_vga_test.bin
-	$(QEMU) -s -kernel $(BUILD_DIR)/tests/kernel_vga_test.bin
+test_vga: $(BUILD_DIR)/tests/kernel_vga_test.bin
+	$(QEMU) -s -S -kernel $(BUILD_DIR)/tests/kernel_vga_test.bin
+
+test_gdt: $(BUILD_DIR)/tests/kernel_gdt_test.bin
+	$(QEMU) -s -S -kernel $(BUILD_DIR)/tests/kernel_gdt_test.bin
+
+tests: test_vga test_gdt
 
 clean:
 	rm $(BUILD_DIR)/*.o
@@ -63,4 +68,4 @@ clean:
 	rm $(BUILD_DIR)/tests/*.bin
 	rm $(BUILD_DIR)/tests/*.o
 
-.PHONY: qemu tests clean i386
+.PHONY: qemu tests test_vga test_gdt clean i386

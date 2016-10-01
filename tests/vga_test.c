@@ -2,6 +2,8 @@
 
 #include "../kernel/vga.h"
 
+#define VGA_ADDR 0xC00B8000
+
 #include <stdint.h>
 
 int hello_world_test() {
@@ -9,7 +11,7 @@ int hello_world_test() {
     uint8_t number_of_columns = 80;
 
     // this is the VGA buffer address
-    uint16_t* buffer = (uint16_t*) 0xB8000;
+    uint16_t* buffer = (uint16_t*) VGA_ADDR;
 
     struct terminal_t terminal = terminal_new(number_of_columns, number_of_rows, buffer);
     struct cursor_t cursor = {.row = 0, .column = 0};
@@ -49,7 +51,7 @@ int multiline_test() {
     uint8_t number_of_columns = 80;
 
     // this is the VGA buffer address
-    uint16_t* buffer = (uint16_t*) 0xB8000;
+    uint16_t* buffer = (uint16_t*) VGA_ADDR;
 
     struct terminal_t terminal = terminal_new(number_of_columns, number_of_rows, buffer);
     struct cursor_t cursor = {.row = 0, .column = 0};
@@ -107,7 +109,7 @@ int scroll_test() {
     uint8_t number_of_columns = 80;
 
     // this is the VGA buffer address
-    uint16_t* buffer = (uint16_t*) 0xB8000;
+    uint16_t* buffer = (uint16_t*) VGA_ADDR;
 
     struct terminal_t terminal = terminal_new(number_of_columns, number_of_rows, buffer);
     struct cursor_t cursor = {.row = 0, .column = 0};
@@ -138,7 +140,7 @@ int wrap_test() {
     uint8_t number_of_columns = 80;
 
     // this is the VGA buffer address
-    uint16_t* buffer = (uint16_t*) 0xB8000;
+    uint16_t* buffer = (uint16_t*) VGA_ADDR;
 
     struct terminal_t terminal = terminal_new(number_of_columns, number_of_rows, buffer);
     struct cursor_t cursor = {.row = 0, .column = 0};

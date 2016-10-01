@@ -1,7 +1,7 @@
 // writes a message directly in the VGA framebuffer as red text
 #define WRITE_ERROR(MSG, SCOPE) \
     {\
-        uint16_t* vga_buffer = (uint16_t*) 0xB8000;\
+        uint16_t* vga_buffer = (uint16_t*) 0xC00B8000;\
         vga_buffer += 80*SCOPE;\
         const char* msg = MSG;\
         while(*msg != '\0') {\
